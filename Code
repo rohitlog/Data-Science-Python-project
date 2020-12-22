@@ -1,0 +1,61 @@
+#Comcast Telecom Consumer Complaints
+#import libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+#Reading the dataset in a dataframe using Pandas
+df=pd.read_csv(r"E:\python\My_project\1568699544_comcast_telecom_complaints_data\Comcast_telecom_complaints_data.csv")
+
+df.info()
+
+#Provide the trend chart for the number of complaints at monthly and daily granularity levels
+df["Date_month_year"] = pd.to_datetime(df["Date_month_year"])
+df["Date_month_year"].value_counts().plot()
+
+#Provide a table with the frequency of complaint types.
+df.groupby('Customer Complaint').size()
+
+
+#Which complaint types are maximum i.e., around internet, network issues, or across any other domains.
+max_complaint_types=df.groupby(["Customer Complaint","Received Via"]).size().unstack().fillna(0)
+maxcomplaint types
+
+# maximum complaint type Name
+max_complaint_type.idxmax()
+
+#Create a new categorical variable with value as Open and Closed. Open & Pending is to be categorized as Open and Closed & Solved is to be categorized as Closed.
+df["newStatus"] = ["Open" if Status=="Open" or Status=="Pending" else "Closed" for Status in df["Status"]]
+df.head()
+
+Status_complaints = df.groupby(["State","newStatus"]).size().unstack().fillna(0)
+Status_complaints
+
+#Provide state wise status of complaints in a stacked bar chart. Use the categorized variable from Q3. Provide insights on:
+Status_complaints.plot(kind="barh", figsize=(30,50), stacked=True)
+
+#Which state has the maximum complaints
+max_compliant_state=df.groupby(["State"]).size()
+max_compliant_state
+max_compliant_state.idxmax()
+
+#Which state has the highest percentage of unresolved complaints
+unresolved_complaints=df.loc[df["newStatus"] == 'Open']
+unresolved_complaints.shape
+df.groupby(["newStatus"]).size()
+
+# percentage calculation of unresolved complaints 
+per_unresolved_complaints=(unresolved_complaints.groupby(["State","newStatus"]).size().unstack().fillna(0)/unresolved_complaints.groupby(["State","newStatus"]).size().unstack().fillna(0).sum()) * 100
+per_unresolved_complaints
+
+#highest percentage state of unresolved complaints
+per_unresolved_complaints.idxmax().max()
+
+#Provide the percentage of complaints resolved till date, which were received through the Internet and customer care calls.
+df.groupby('Received Via').size()
+df.groupby(["Received Via","newStatus"]).size().unstack().fillna(0)
+
+
+## percentage calculation of resolved complaints
+per_resolved_complaints=(df.groupby(["Received Via","newStatus"]).size().unstack().fillna(0)/df.groupby(["Received Via"]).size().sum())*100
+per_resolved_complaints
